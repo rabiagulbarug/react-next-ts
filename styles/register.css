@@ -1,0 +1,37 @@
+.register-form {
+    margin-top: 10px;
+}
+
+.register-form input {
+    background-color: #F2F2F2;
+    border: 1px solid #E6E6E6;
+    height: 52px !important;
+    margin-top: 10px;
+}
+
+.register-form label {
+    padding: 0.8rem 0.75rem !important;
+    height: 52px !important;
+    color: #9F9F9F;
+}
+
+.register-form input:hover {
+    transition: all .3s;
+    background-color: white !important;
+    border-color: #18604A !important;
+}
+
+.register-form input:focus {
+    box-shadow: unset !important;
+    background-color: white !important;
+    border-color: #18604A !important;
+}
+
+.login-floating-icons {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 16px;
+    color: #9F9F9F;
+    font-size: 20px;
+}

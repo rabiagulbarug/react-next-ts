@@ -28,7 +28,7 @@ const Login = ({onLogin}: {onLogin?: () => void}) => {
     return (
         <div className="row">
             <div className="col-md-12 mt-5">
-                <div className="card" >
+                <div className="global-card" >
                     <form onSubmit={handleSubmit(onSubmit)}>
 
                         <div className="input-group mb-3">
@@ -87,7 +87,7 @@ const Login = ({onLogin}: {onLogin?: () => void}) => {
                             </div>
                             <div className="col-md-12 mt-3 text-center">
                                         <span className="login-alt-span">Do not have an account ?
-                                            <Link href='/'>Register here</Link>
+                                            <Link href='/auth/register'>Register here</Link>
                                         </span>
                             </div>
                         </div>

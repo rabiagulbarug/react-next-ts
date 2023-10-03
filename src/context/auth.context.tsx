@@ -1,17 +1,14 @@
 import axios from 'axios'
 import {createContext, PropsWithChildren, useCallback, useContext, useEffect, useState} from 'react'
-
 import {loginHandler} from "../handlers/auth/login.handler"
 import {User} from '../types/user'
 import {meHandler} from "../handlers/auth/me.handler";
 import {logoutHandler} from "../handlers/auth/logout.handler";
 import {useRouter} from "next/router";
-import Swal from 'sweetalert2';
 
 type AuthLoginParams = {
     email: string
     password: string
-    remember_me: number
 }
 
 interface AuthContext {
@@ -43,34 +40,12 @@ export function ProvideAuth({children}: PropsWithChildren) {
 
     useEffect(() => {
         if (isInitialized && !loggedIn && !router.pathname.startsWith('/auth')) {
-            router.push('/auth/login')
+            router.push('/dashboard')
         }
         if (isInitialized && loggedIn) {
-            if (user?.email_verified === 1) {
-                router.push(window.location.pathname.startsWith('/auth/login') ? window.location.pathname : '/auth/login');
-            } else {
-                router.push(window.location.pathname.startsWith('/auth/verify-mail') ? window.location.pathname : '/auth/verify-mail');
-            }
+            router.push(window.location.pathname.startsWith('/dashboard') ? window.location.pathname : '/dashboard');
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isInitialized, loggedIn])
-
-    axios.interceptors.response.use(response => response, error => {
-        if ([401, 403].includes(error.response.status)) {
-            logout();
-            router.push('/auth/login');
-        } else if (error.response.status == 400) {
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.messages.map((t: any) => Object.values(t).join('\n')),
-                icon: "error",
-            });
-        }
-    });
-    axios.interceptors.request.use((config) => {
-        config.params = {...config.params, lang: 'en'}
-        return config;
-    })
 
     return <authContext.Provider value={auth}>{children}</authContext.Provider>
 }
@@ -96,19 +71,19 @@ function useProvideAuth() {
         (credentials: AuthLoginParams, onSuccess?: () => void, onError?: (err: any) => void) => {
             setIsInitialized(false);
             const action = async () => {
-                const {email, password, remember_me} = credentials;
+                const {email, password} = credentials;
                 const response = await loginHandler({email, password})
-                if (response.token) {
-                    axios.defaults.headers.common.Authorization = `Bearer ${response.token}`
+                if (response.data.token) {
+                    axios.defaults.headers.common.Authorization = `Bearer ${response.data.token}`
                 } else {
                     delete axios.defaults.headers.common.Authorization
                 }
                 const me = await meHandler()
                 setUser(me)
-                setApiToken(response.token)
-                setLoggedIn(response.logged_in)
+                setApiToken(response.data.token)
+                setLoggedIn(true)
                 setIsInitialized(true)
-                localStorage.setItem('@auth/apiToken', response.token)
+                localStorage.setItem('@auth/apiToken', response.data.token)
             }
             action().then(() => {
                 onSuccess && onSuccess()
@@ -143,7 +118,7 @@ function useProvideAuth() {
         }
 
         meHandler().then(me => {
-            if (!me || !me.username || me.username === 'guest') {
+            if (!me || !me.id) {
                 throw new Error('not logged in')
             }
             setUser(me)

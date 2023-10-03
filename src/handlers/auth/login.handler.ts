@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Swal from "sweetalert2";
 
 export interface LoginParams {
     email: string
@@ -6,12 +7,17 @@ export interface LoginParams {
 }
 
 export const loginHandler = async ({email, password}: LoginParams) => {
-    return axios.get('/auth/login').then(({data}) => {
-        const {form_id, form_build_id, form_token, token} = data.data;
-        axios.defaults.headers.common.Authorization = `Bearer ${token}`
-        return axios.post('/auth/login', { username: email, password, form_id, form_build_id, form_token, token }).then((res) => ({
-            ...res.data?.data,
-            token
-        }))
-    })
+    return axios.post('/auth/login', {email, password}, {validateStatus: status => true})
+        .then((res) => {
+            if (res.status == 400) {
+                Swal.fire({
+                    title: "Error",
+                    text: res.data.messages.map((t: any) => Object.values(t).join('\n')),
+                    icon: "error",
+                });
+            }
+            return {
+                ...res?.data,
+            }
+        })
 }
